@@ -1,0 +1,13 @@
+# PCA ANOVA — Top 12 feature per F-statistic
+diffAUC1_4
+diffAUC2_4
+RRn4
+SSn4
+BNB4
+BBn4
+CCn4
+diffAUC3_4
+BNBn4
+BN4
+A2
+A1
