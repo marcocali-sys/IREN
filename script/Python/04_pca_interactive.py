@@ -1,9 +1,12 @@
 """
 PCA Interattiva — ELLONA/IREN
-Output: pca_interactive.html  (apri nel browser)
-        pca_2d_interactive.html
+Input:  data/processed/TRAIN_FEATURES.csv + output/06_rfecv/rfecv_selected_features.txt
+Output: output/04_pca/pca_3d_interactive.html
+        output/04_pca/pca_2d_interactive.html
+        output/04_pca/pca_loadings_interactive.html
 """
 
+import os
 import pandas as pd
 import numpy as np
 from sklearn.decomposition import PCA
@@ -14,8 +17,11 @@ import plotly.express as px
 from plotly.subplots import make_subplots
 
 # ── Parametri ──────────────────────────────────────────────────────────────────
-TRAIN_FILE = "TRAIN_FEATURES.csv"
-FEAT_FILE  = "logo_selected_features.txt"
+TRAIN_FILE = "data/processed/TRAIN_FEATURES.csv"
+FEAT_FILE  = "output/06_rfecv/rfecv_selected_features.txt"
+OUT_DIR    = "output/04_pca"
+
+os.makedirs(OUT_DIR, exist_ok=True)
 
 CLASS_COLORS = {
     "ARIA":      "#4878CF",
@@ -105,7 +111,7 @@ fig3d.update_layout(
     paper_bgcolor="white"
 )
 
-fig3d.write_html("pca_3d_interactive.html",
+fig3d.write_html(os.path.join(OUT_DIR, "pca_3d_interactive.html"),
                  include_plotlyjs="cdn",
                  full_html=True)
 print("✓  pca_3d_interactive.html")
@@ -172,7 +178,7 @@ fig2d.update_yaxes(title_text=f"PC2 ({exp_var[1]:.1f}%)", row=1, col=1, zeroline
 fig2d.update_xaxes(title_text="Componente", row=1, col=2)
 fig2d.update_yaxes(title_text="Varianza (%)", row=1, col=2)
 
-fig2d.write_html("pca_2d_interactive.html",
+fig2d.write_html(os.path.join(OUT_DIR, "pca_2d_interactive.html"),
                  include_plotlyjs="cdn",
                  full_html=True)
 print("✓  pca_2d_interactive.html")
@@ -183,7 +189,7 @@ print("✓  pca_2d_interactive.html")
 load1   = loadings[0]
 load2   = loadings[1]
 contrib = np.sqrt(load1**2 + load2**2)
-top_idx = np.argsort(contrib)[::-1][:15]
+top_idx = np.argsort(contrib)[::-1]
 
 fig_load = go.Figure()
 
@@ -219,7 +225,7 @@ for i in top_idx:
     ))
 
 fig_load.update_layout(
-    title=dict(text="<b>Cerchio delle correlazioni — Top 15 feature</b>", x=0.5),
+    title=dict(text=f"<b>Cerchio delle correlazioni — {len(selected)} feature RFECV</b>", x=0.5),
     xaxis=dict(title=f"PC1 ({exp_var[0]:.1f}%)", range=[-1.3, 1.3],
                zeroline=True, zerolinecolor="gray", zerolinewidth=0.8,
                scaleanchor="y"),
@@ -229,7 +235,7 @@ fig_load.update_layout(
     paper_bgcolor="white", plot_bgcolor="#fafafa"
 )
 
-fig_load.write_html("pca_loadings_interactive.html",
+fig_load.write_html(os.path.join(OUT_DIR, "pca_loadings_interactive.html"),
                     include_plotlyjs="cdn",
                     full_html=True)
 print("✓  pca_loadings_interactive.html")

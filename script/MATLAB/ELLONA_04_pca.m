@@ -1,10 +1,13 @@
 % =========================================================================
 % PCA — ELLONA/IREN
-% Input:  TRAIN_FEATURES.csv + logo_selected_features.txt
-% Output: pca_scree.png / pca_scores.png / pca_loadings.png
+% Input:  data/processed/TRAIN_FEATURES.csv
+%         output/06_rfecv/rfecv_selected_features.txt
+% Output: output/04_pca/pca_scree.png / pca_scores.png / pca_loadings.png
 % =========================================================================
 
 cd(fullfile(getenv('HOME'), 'Desktop', 'IREN'));
+out_dir = 'output/04_pca';
+if ~exist(out_dir, 'dir'), mkdir(out_dir); end
 
 CLASS_COLORS = containers.Map(...
     {'ARIA','BIOFILTRO','BIOGAS','FORSU','PERCOLATO'}, ...
@@ -15,7 +18,7 @@ CLASS_MARKERS = containers.Map(...
     {'o','s','^','d','p'});
 
 % ── Carica feature selezionate ─────────────────────────────────────────────────
-fid   = fopen('logo_selected_features.txt','r');
+fid   = fopen('output/06_rfecv/rfecv_selected_features.txt','r');
 lines = textscan(fid,'%s','Delimiter','\n'); fclose(fid);
 lines = lines{1};
 selected = {};
@@ -29,8 +32,8 @@ n_feat = numel(selected);
 fprintf('Feature selezionate: %d\n', n_feat);
 
 % ── Carica dati ───────────────────────────────────────────────────────────────
-opts = detectImportOptions('TRAIN_FEATURES.csv','Delimiter',';');
-df   = readtable('TRAIN_FEATURES.csv', opts);
+opts = detectImportOptions('data/processed/TRAIN_FEATURES.csv','Delimiter',';');
+df   = readtable('data/processed/TRAIN_FEATURES.csv', opts);
 y    = string(df.Classe2);
 X    = table2array(df(:, selected));
 [n, ~] = size(X);
@@ -80,7 +83,7 @@ xline(n_comp_90,'--','Color',[0.5 0.5 0.5],'LineWidth',0.8);
 xlabel('Numero di componenti'); ylabel('Varianza cumulativa (%)');
 title('Varianza Cumulativa'); xlim([1 n_show]); ylim([0 105]); grid on;
 
-saveas(gcf,'pca_scree.png'); fprintf('✓  pca_scree.png\n');
+saveas(gcf, fullfile(out_dir,'pca_scree.png')); fprintf('✓  pca_scree.png\n');
 
 % ─────────────────────────────────────────────────────────────────────────────
 % PLOT 2: PC1 vs PC2 con ellissi di confidenza (95%)
@@ -121,7 +124,7 @@ ylabel(sprintf('PC2 (%.1f%%)', explained(2)),'FontSize',12);
 title('PCA — ELLONA/IREN  (ellissi 95%)','FontSize',13);
 legend(legend_handles, cellstr(classes), 'Location','best','FontSize',9);
 grid on; box on; hold off;
-saveas(gcf,'pca_scores.png'); fprintf('✓  pca_scores.png\n');
+saveas(gcf, fullfile(out_dir,'pca_scores.png')); fprintf('✓  pca_scores.png\n');
 
 % ─────────────────────────────────────────────────────────────────────────────
 % PLOT 3: Cerchio delle correlazioni — top 15 loadings
@@ -130,7 +133,7 @@ load1   = coeff(:,1);
 load2   = coeff(:,2);
 contrib = sqrt(load1.^2 + load2.^2);
 [~, top_idx] = sort(contrib,'descend');
-top_idx = top_idx(1:15);
+% Mostra tutte le feature (sono già 11 dopo RFECV)
 
 figure('Position',[50 50 750 750]);
 hold on;
@@ -150,9 +153,9 @@ yline(0,'Color',[0.7 0.7 0.7],'LineWidth',0.5);
 xlim([-1.2 1.2]); ylim([-1.2 1.2]); axis square;
 xlabel(sprintf('PC1 (%.1f%%)', explained(1)),'FontSize',12);
 ylabel(sprintf('PC2 (%.1f%%)', explained(2)),'FontSize',12);
-title('Cerchio delle correlazioni — Top 15 feature','FontSize',12);
+title(sprintf('Cerchio delle correlazioni — %d feature RFECV', n_feat),'FontSize',12);
 grid on; box on; hold off;
-saveas(gcf,'pca_loadings.png'); fprintf('✓  pca_loadings.png\n');
+saveas(gcf, fullfile(out_dir,'pca_loadings.png')); fprintf('✓  pca_loadings.png\n');
 
 % ─────────────────────────────────────────────────────────────────────────────
 % PLOT 4: PC1 vs PC3
@@ -184,14 +187,14 @@ ylabel(sprintf('PC3 (%.1f%%)', explained(3)),'FontSize',12);
 title('PCA PC1 vs PC3 — ELLONA/IREN','FontSize',13);
 legend(legend_handles2, cellstr(classes),'Location','best','FontSize',9);
 grid on; box on; hold off;
-saveas(gcf,'pca_scores_PC1_PC3.png'); fprintf('✓  pca_scores_PC1_PC3.png\n');
+saveas(gcf, fullfile(out_dir,'pca_scores_PC1_PC3.png')); fprintf('✓  pca_scores_PC1_PC3.png\n');
 
 % ─────────────────────────────────────────────────────────────────────────────
 % Salva scores + summary
 % ─────────────────────────────────────────────────────────────────────────────
 out_tbl = table(df.Classe2, df.Sample_ID, scores(:,1), scores(:,2), scores(:,3), scores(:,4), scores(:,5), ...
     'VariableNames',{'Classe2','Sample_ID','PC1','PC2','PC3','PC4','PC5'});
-writetable(out_tbl,'pca_results.csv','Delimiter',';');
+writetable(out_tbl, fullfile(out_dir,'pca_results.csv'),'Delimiter',';');
 fprintf('✓  pca_results.csv\n');
 
 fprintf('\nVarianza spiegata:\n');

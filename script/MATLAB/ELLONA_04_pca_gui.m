@@ -66,8 +66,8 @@ classTe   = unique(string(Tte.Classe2));
 allClassNames = unique([classesTr; classTe]);
 fprintf("Classi disponibili: %s\n", strjoin(allClassNames, ', '));
 
-%% === 4) Evidenzia feature LOGO-selected (se file disponibile) ===
-logoFile = 'logo_selected_features.txt';
+%% === 4) Evidenzia feature RFECV-selected con ★ (se file disponibile) ===
+logoFile = 'output/06_rfecv/rfecv_selected_features.txt';
 logoFeats = strings(0,1);
 if isfile(logoFile)
     fid_l = fopen(logoFile,'r');
@@ -79,7 +79,7 @@ if isfile(logoFile)
             logoFeats(end+1,1) = string(l);
         end
     end
-    fprintf("Feature LOGO-selected caricate: %d\n", numel(logoFeats));
+    fprintf("Feature RFECV-selected caricate: %d\n", numel(logoFeats));
 end
 
 % Costruisce etichette listbox: aggiunge "★" alle feature LOGO-selected

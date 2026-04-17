@@ -1,11 +1,11 @@
 """
 PCA — ELLONA/IREN
-Input:  TRAIN_FEATURES.csv + logo_selected_features.txt
-Output: pca_scores.png      (PC1 vs PC2, ellissi per classe)
-        pca_scree.png       (varianza spiegata)
-        pca_loadings.png    (contributo feature a PC1/PC2)
-        pca_3d.png          (PC1 vs PC2 vs PC3)
-        pca_results.csv     (scores + classe)
+Input:  data/processed/TRAIN_FEATURES.csv + output/06_rfecv/rfecv_selected_features.txt
+Output: output/04_pca/pca_scores.png      (PC1 vs PC2, ellissi per classe)
+        output/04_pca/pca_scree.png       (varianza spiegata)
+        output/04_pca/pca_loadings.png    (contributo feature a PC1/PC2)
+        output/04_pca/pca_3d.png          (PC1 vs PC2 vs PC3)
+        output/04_pca/pca_results.csv     (scores + classe)
 """
 
 import pandas as pd
@@ -13,6 +13,7 @@ import numpy as np
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 from sklearn.impute import SimpleImputer
+import os
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -21,8 +22,9 @@ from matplotlib.patches import Ellipse
 import matplotlib.transforms as transforms
 
 # ── Parametri ──────────────────────────────────────────────────────────────────
-TRAIN_FILE    = "TRAIN_FEATURES.csv"
-FEAT_FILE     = "logo_selected_features.txt"
+TRAIN_FILE    = "data/processed/TRAIN_FEATURES.csv"
+FEAT_FILE     = "output/06_rfecv/rfecv_selected_features.txt"
+OUT_DIR       = "output/04_pca"
 RANDOM_SEED   = 42
 
 CLASS_COLORS = {
@@ -36,6 +38,8 @@ CLASS_MARKERS = {
     "ARIA": "o", "BIOFILTRO": "s", "BIOGAS": "^", "FORSU": "D", "PERCOLATO": "P"
 }
 # ──────────────────────────────────────────────────────────────────────────────
+
+os.makedirs(OUT_DIR, exist_ok=True)
 
 # ── Carica feature selezionate ─────────────────────────────────────────────────
 with open(FEAT_FILE) as f:
@@ -103,7 +107,7 @@ axes[1].set_xlim(1, min(20, len(exp_var)))
 axes[1].grid(alpha=0.3)
 
 plt.tight_layout()
-plt.savefig("pca_scree.png", dpi=150)
+plt.savefig(os.path.join(OUT_DIR, "pca_scree.png"), dpi=150)
 plt.close()
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -134,7 +138,7 @@ ax.set_title("PCA — ELLONA/IREN  (ellissi 95%)", fontsize=13)
 ax.legend(loc="best", framealpha=0.9, fontsize=9)
 ax.grid(alpha=0.2)
 plt.tight_layout()
-plt.savefig("pca_scores.png", dpi=150)
+plt.savefig(os.path.join(OUT_DIR, "pca_scores.png"), dpi=150)
 plt.close()
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -143,9 +147,9 @@ plt.close()
 load1 = loadings[0]
 load2 = loadings[1]
 
-# Top 15 feature per contributo complessivo
+# Tutte le 11 feature selezionate
 contrib = np.sqrt(load1**2 + load2**2)
-top_idx = np.argsort(contrib)[::-1][:15]
+top_idx = np.argsort(contrib)[::-1]
 
 fig, ax = plt.subplots(figsize=(9, 7))
 for i in top_idx:
@@ -162,11 +166,11 @@ ax.axhline(0, color="gray", linewidth=0.5)
 ax.axvline(0, color="gray", linewidth=0.5)
 ax.set_xlabel(f"PC1 ({exp_var[0]:.1f}%)", fontsize=12)
 ax.set_ylabel(f"PC2 ({exp_var[1]:.1f}%)", fontsize=12)
-ax.set_title("Loadings PCA — Top 15 feature", fontsize=13)
+ax.set_title(f"Loadings PCA — {len(selected)} feature selezionate (RFECV)", fontsize=13)
 ax.set_aspect("equal")
 ax.grid(alpha=0.2)
 plt.tight_layout()
-plt.savefig("pca_loadings.png", dpi=150)
+plt.savefig(os.path.join(OUT_DIR, "pca_loadings.png"), dpi=150)
 plt.close()
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -192,7 +196,7 @@ ax3.set_zlabel(f"PC3 ({exp_var[2]:.1f}%)", fontsize=9)
 ax3.set_title("PCA 3D — ELLONA/IREN", fontsize=12)
 ax3.legend(loc="upper left", fontsize=8, framealpha=0.8)
 plt.tight_layout()
-plt.savefig("pca_3d.png", dpi=150)
+plt.savefig(os.path.join(OUT_DIR, "pca_3d.png"), dpi=150)
 plt.close()
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -202,10 +206,10 @@ scores_df = pd.DataFrame(scores[:, :5],
                          columns=[f"PC{i+1}" for i in range(5)])
 scores_df.insert(0, "Classe2",    y)
 scores_df.insert(1, "Sample.ID",  df["Sample.ID"].values)
-scores_df.to_csv("pca_results.csv", sep=";", index=False)
+scores_df.to_csv(os.path.join(OUT_DIR, "pca_results.csv"), sep=";", index=False)
 
-print("\n✓  pca_scree.png")
-print("✓  pca_scores.png")
-print("✓  pca_loadings.png")
-print("✓  pca_3d.png")
-print("✓  pca_results.csv")
+print(f"\n✓  {OUT_DIR}/pca_scree.png")
+print(f"✓  {OUT_DIR}/pca_scores.png")
+print(f"✓  {OUT_DIR}/pca_loadings.png")
+print(f"✓  {OUT_DIR}/pca_3d.png")
+print(f"✓  {OUT_DIR}/pca_results.csv")
