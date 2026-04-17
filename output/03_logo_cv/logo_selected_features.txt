@@ -1,0 +1,35 @@
+# LOGO-CV Feature Selection — 31 feature selezionate
+# Soglia: MeanImportance > grand_mean (0.011765)
+# AccuratezzaMedia_LOGO: 0.6390
+
+diffAUC2_4
+diffAUC1_4
+FA1
+BNBn2
+D2
+BNBn4
+N2
+BBn4
+diffAUC3_4
+RRn4
+SSn4
+BNBn1
+BNB4
+BB4
+SS4
+CCn4
+A2
+FA4
+CCn1
+BBn1
+CC4
+RRn1
+BNB1
+RR4
+CC1
+SSn1
+H2
+LN1
+O1
+H1
+M4

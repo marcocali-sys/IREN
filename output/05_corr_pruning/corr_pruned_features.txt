@@ -1,0 +1,19 @@
+# Correlation pruning — soglia |ρ|=0.9
+# Input: 31 feature  →  Output: 16 feature
+
+diffAUC2_4
+diffAUC1_4
+FA1
+BNBn2
+D2
+BNBn4
+BBn4
+diffAUC3_4
+BNBn1
+BB4
+A2
+FA4
+CCn1
+CC1
+H1
+M4

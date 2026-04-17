@@ -1,0 +1,15 @@
+# RFECV — 11 feature selezionate
+# Scoring: balanced_accuracy | CV: LOGO (gruppi=Sample.ID)
+# Balanced accuracy ottimale: 0.6530 ± 0.3808
+
+diffAUC2_4
+diffAUC1_4
+FA1
+BNBn4
+BBn4
+diffAUC3_4
+BNBn1
+BB4
+FA4
+CCn1
+M4

@@ -1,0 +1,25 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Large raw data files
+data/raw/monitoraggio2025/
+data/raw/*.zip
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+
+# R
+.Rhistory
+.RData
+.Rproj.user/
+
+# MATLAB
+*.asv
+
+# Plotly offline libs (too large)
+output/04_pca/plotly_libs/
