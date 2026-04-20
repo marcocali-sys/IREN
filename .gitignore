@@ -23,3 +23,8 @@ __pycache__/
 
 # Plotly offline libs (too large)
 output/04_pca/plotly_libs/
+
+# Large processed/generated files
+data/processed/monitoring_all.mat
+LOD.pdf
+LOD (trascinato).pdf

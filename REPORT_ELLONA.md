@@ -1,4 +1,4 @@
-# ELLONA Electronic Nose — Feature Selection Pipeline Report
+ # ELLONA Electronic Nose — Feature Selection Pipeline Report
 
 **Progetto**: Classificazione sorgenti odorigene — Impianto IREN
 **Strumento**: ELLONA Electronic Nose (Sacmi)
