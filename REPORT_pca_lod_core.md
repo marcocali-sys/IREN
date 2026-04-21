@@ -32,18 +32,40 @@ Il sistema ELLONA monta quattro sensori (cmos1–cmos4). Per costruire un LOD su
 
 Nessuna di queste regole è ottimale perché tutte trattano i quattro sensori come ugualmente informativi e ignorano la struttura di correlazione del sistema.
 
-### 2.2 Il problema dei confounders
+### 2.2 Il problema dei confounders: evidenza empirica
 
-Con il baseline globale (LOD fisso senza PCA, calcolato sull'intera serie grezza) il tasso di eventi risultante è del **13.27%** — oltre 3 volte il valore ragionevole. Questo numero è dominato dalla deriva stagionale: d'estate tutti i sensori si spostano sistematicamente rispetto al baseline invernale, e la soglia fissa li interpreta erroneamente come eventi.
+Il confronto diretto tra LOD sui segnali grezzi e LOD su PC₁ — con la **stessa identica selezione di baseline** (IQR [P25,P75] su tutti i sensori) — produce i seguenti risultati sul dataset ELLONA (2 069 099 campioni, 9 mesi):
 
-| Approccio baseline | % eventi |
+| Metodo | % eventi | r con T | FP esclusivi | FP / totale |
+|---|---|---|---|---|
+| cmos1 (grezzo) | 12.62% | **+0.508** | 12.32% | **97.6%** |
+| cmos2 (grezzo) | 1.86% | −0.205 | 1.60% | 86.0% |
+| cmos3 (grezzo) | 14.15% | −0.313 | 13.77% | **97.3%** |
+| cmos4 (grezzo) | 0.32% | −0.366 | 0.32% | 100% |
+| media z-norm. | 12.02% | −0.101 | 11.73% | **97.6%** |
+| **PC₁** | **3.67%** | **+0.033** | **0.00%** | **—** |
+
+*"FP esclusivi" = eventi rilevati dal metodo ma non confermati da PC₁.*
+
+I risultati mostrano tre patologie distinte dei LOD sul grezzo:
+
+**a) Tasso eventi gonfiato (97% falsi positivi)**  
+cmos1 rileva il 12.62% di eventi, ma solo lo 0.31% coincide con gli eventi di PC₁. Il 97.6% degli eventi di cmos1 non è confermato da nessun'altra sorgente indipendente — sono falsi positivi. Stessa situazione per cmos3 (97.3%) e per la media z-normalizzata (97.6%).
+
+**b) Correlazione con la temperatura**  
+cmos1 ha correlazione di Pearson r = +0.508 tra tasso eventi settimanale e temperatura media settimanale. Questo significa che quasi metà della variazione del tasso di eventi di cmos1 nel tempo è spiegata dalla sola temperatura — non da odori. PC₁ ha r = +0.033, statisticamente indistinguibile da zero: i suoi eventi non dipendono dalla stagione termica.
+
+**c) Inconsistenza tra sensori**  
+I quattro sensori grezzi producono tassi di eventi completamente diversi (0.32%–14.15%) sullo stesso dataset, con la stessa metodologia. Non esiste una soglia "giusta" sul grezzo — ogni sensore risponde a stimoli fisici diversi (il range di cmos4 è 90 442 ± 29 011, quello di cmos3 è 152 ± 7) e non sono direttamente confrontabili.
+
+Anche con il baseline globale (senza finestra settimanale, PCA inclusa) il tasso di eventi è del **13.27%** — un ulteriore indicatore che la varianza stagionale non rimossa dalla PCA gonfia i falsi positivi.
+
+| Approccio baseline su PC₁ | % eventi |
 |---|---|
-| Globale (senza correzione deriva) | 13.27% |
+| Globale (deriva non corretta) | 13.27% |
 | Mensile | 6.48% |
 | **Settimanale (ottimale)** | **3.67%** |
 | Giornaliero (troppo adattivo) | 0.27% |
-
-Il baseline giornaliero (0.27%) collassa all'estremo opposto: si adatta così velocemente da considerare "normale" anche gli eventi stessi — non rileva nulla. La variazione tra 0.27% e 13.27% su diversi approcci di baseline sul segnale grezzo è di per sé una dimostrazione che il segnale grezzo è fortemente inquinato da confounders temporali.
 
 ---
 
@@ -227,5 +249,22 @@ La risposta common-mode di T e RH, che sposterebbe tutti i sensori nella stessa 
 
 ---
 
-*File di riferimento: `ELLONA_08_pca_baseline_lod.m`, `ELLONA_11_rolling_lod.m`, `ellona_rolling_lod.m`*  
-*Output di riferimento: `output/event_detection/`, `output/rolling_lod/`*
+---
+
+## 9. Numeri chiave (da citare in tesi)
+
+| Affermazione | Valore | Fonte |
+|---|---|---|
+| Tasso eventi LOD su PC₁ (k=3, baseline weekly) | **3.67%** | ELLONA_08 |
+| Tasso eventi LOD su cmos1 grezzo (stesso baseline) | **12.62%** | ELLONA_12 |
+| Falsi positivi di cmos1 non confermati da PC₁ | **97.6%** | ELLONA_12 |
+| Correlazione r(cmos1 eventi, T) | **+0.508** | ELLONA_12 |
+| Correlazione r(PC₁ eventi, T) | **+0.033** | ELLONA_12 |
+| Varianza stagionale in σ_global di PC₁ | **89%** | ELLONA_11 |
+| Concordanza LOD fisso vs rolling (k=3, 7d) | **98.5%** | ELLONA_11 |
+| Loading cmos4 su PC₁ (segno opposto agli altri) | **−0.336** | ELLONA_08 |
+
+---
+
+*File di riferimento: `ELLONA_08_pca_baseline_lod.m`, `ELLONA_11_rolling_lod.m`, `ELLONA_12_raw_vs_pca_lod.m`, `ellona_rolling_lod.m`*  
+*Output di riferimento: `output/event_detection/`, `output/rolling_lod/`, `output/raw_vs_pca/`*

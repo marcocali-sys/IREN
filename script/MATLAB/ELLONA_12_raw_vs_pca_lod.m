@@ -303,17 +303,12 @@ for m = 1:nMethods
 end
 
 x_pos = 1:nMethods;
-b1 = bar(ax4, x_pos, pct_in_pc1,    0.6, 'FaceAlpha',0.9);
-b2 = bar(ax4, x_pos, pct_exclusive, 0.6, 'FaceAlpha',0.9, 'BottomOffset', pct_in_pc1);
+% Stacked bar: [overlap_PC1, esclusivi] per colonna
+b = bar(ax4, x_pos, [pct_in_pc1(:), pct_exclusive(:)], 0.6, 'stacked', 'FaceAlpha',0.88);
+b(1).FaceColor = [0.35 0.65 0.35];   % verde: overlap con PC₁
+b(2).FaceColor = [0.88 0.15 0.08];   % rosso: esclusivi (FP potenziali)
 
-% Colora le barre per metodo
-for m = 1:nMethods
-    b1.FaceColor = 'flat'; b1.CData(m,:) = colors(m,:) * 0.7;
-    b2.FaceColor = 'flat'; b2.CData(m,:) = [0.92 0.15 0.08];
-end
-b1.FaceColor = 'flat'; b2.FaceColor = 'flat';
-
-% Testo % sopra ogni barra
+% Testo % falsi positivi sopra ogni barra
 for m = 1:nMethods
     text(ax4, m, pct_total(m) + 0.3, sprintf('%.1f%%', pct_exclusive(m)), ...
         'HorizontalAlignment','center', 'FontSize',8, 'Color',[0.7 0 0], 'FontWeight','bold');
